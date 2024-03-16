@@ -43,6 +43,7 @@ export default function App() {
   );
 
   useEffect(function() {
+
     async function fetchMovies() {
       try {
         setLoading(true);
@@ -53,6 +54,7 @@ export default function App() {
         }
         const data = await res.json();
         setMovies(data.Search);
+        setLoading(false);
       } catch(err) {
         setError(err.message);
         setLoading(false);
@@ -63,10 +65,6 @@ export default function App() {
 
    return (
     <>
-      {console.log('error', error)}
-      {console.log('movies', movies)}
-      {console.log('loading', isLoading)}
-      {console.log('watched', watched)}
       <NavBar>
         <Logo />
         <Search />

@@ -72,7 +72,6 @@ function Star({
     cursor: "pointer"
   }
 
-  console.log(starStyle)
   return (
     <span 
       role="button"
