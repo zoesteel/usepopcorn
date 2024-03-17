@@ -34,32 +34,34 @@ export default function App() {
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const query = "interstellar";
-
-  useEffect(() => {
-    movies.length > 0 ? setLoading(false) : setLoading(true);
-  },
-  [movies]
-  );
+  const query = "dkljdlkj";
 
   useEffect(function() {
 
     async function fetchMovies() {
       try {
-        setLoading(true);
+        setLoading( true  );
         const res = await fetch(`http://www.omdbapi.com/?s=${query}&apikey=${KEY}`);
 
-        if(!res.ok) {
-          throw new Error('Something went wrong with fetching movies');
+        if( ! res.ok ) {
+          throw new Error(data.Error);
         }
+
         const data = await res.json();
-        setMovies(data.Search);
-        setLoading(false);
-      } catch(err) {
+
+        if( data.Response === 'False' ) {
+          throw new Error(data.Error);
+        }
+
+        setMovies( data.Search );
+        setLoading( false );
+      } catch( err ) {
+        console.log(err);
         setError(err.message);
         setLoading(false);
       }
     }
+
     fetchMovies();
   }, []);
 
