@@ -8,6 +8,7 @@ import NavBar from "./components/layout/NavBar";
 import Search from "./components/layout/Search";
 import Logo from "./components/layout/Logo";
 import NumResults from "./components/layout/NumResults";
+import MovieDetails from "./components/MovieDetails";
 import MoviesList from "./components/MoviesList";
 import WatchedMovieList from "./components/WatchedMovieList";
 import WatchedSummary from "./components/WatchedSummary";
@@ -28,33 +29,43 @@ function ErrorMessage({message}) {
 }
 
 export default function App() {
-  // const [query, setQuery] = useState("");
+  const [query, setQuery] = useState("My Dog Skip");
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [selectedId, setSelectedId] = useState(null);
 
-  const query = "dkljdlkj";
+  const tempQuery = "titanic";
+
+  const handleSelectMovie = (id) => {
+    setSelectedId(selectedId => id === selectedId ? null : id);
+  }
+
+  const handleCloseMovie = () => {
+    setSelectedId(null)
+  }
 
   useEffect(function() {
-
     async function fetchMovies() {
       try {
-        setLoading( true  );
+        setLoading(true);
+        setError('');
+        setMovies([]);
         const res = await fetch(`http://www.omdbapi.com/?s=${query}&apikey=${KEY}`);
+
+        const data = await res.json();
 
         if( ! res.ok ) {
           throw new Error(data.Error);
         }
-
-        const data = await res.json();
 
         if( data.Response === 'False' ) {
           throw new Error(data.Error);
         }
 
         setMovies( data.Search );
-        setLoading( false );
+        setLoading(false);
       } catch( err ) {
         console.log(err);
         setError(err.message);
@@ -62,24 +73,35 @@ export default function App() {
       }
     }
 
+    if( query.length < 3 ) {
+      setMovies([]);
+      setError('');
+      return;
+    }
+
     fetchMovies();
-  }, []);
+  }, [ query ]);
 
    return (
     <>
       <NavBar>
         <Logo />
-        <Search />
+        <Search query={ query } setQuery={ setQuery }/>
         <NumResults movies={movies} />
       </NavBar>
       <Main>
         <Box>
           {isLoading && <Loader />}
-          {!isLoading && error && <ErrorMessage message={error} />}
-          <MoviesList movies={movies} />
+          {error.length > 0 && <ErrorMessage message={error} />}
+          <MoviesList movies={movies} onSelectMovie={handleSelectMovie} />
         </Box>
         <Box>
-          <WatchedSummary watched={watched} /><WatchedMovieList watched={watched} />
+          {console.log(selectedId)}
+          { selectedId ? <MovieDetails selectedId={selectedId} onCloseMovie={handleCloseMovie} /> :
+          <>
+            <WatchedSummary watched={watched} /><WatchedMovieList watched={watched} />
+          </>
+          }
         </Box>
       </Main>
     </>
